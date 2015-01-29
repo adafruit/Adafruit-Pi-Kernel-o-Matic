@@ -4,8 +4,9 @@ GIT_DIR="/ada_linux"
 MOD_DIR=`mktemp -d`
 PKG_DIR=`mktemp -d`
 TOOLS_DIR="/rpi_tools"
+NUM_CPUS=`nproc`
 
-GIT_REPO="--branch rpi-3.15.y --single-branch https://github.com/adafruit/adafruit-raspberrypi-linux"
+GIT_REPO="--branch rpi-3.15.y https://github.com/adafruit/adafruit-raspberrypi-linux"
 
 if [ "$1" == "" ]; then
   echo "Warning: Repo argument not supplied, using: ${GIT_REPO}"
@@ -31,14 +32,13 @@ if [ ! -d $GIT_DIR ]; then
 fi
 
 cd $GIT_DIR
-git reset --hard origin/master
 git submodule update --init
-cp arch/arm/configs/bcmrpi_defconfig .config
+cp arch/arm/configs/adafruit_defconfig .config
 
 echo "**** COMPILING KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make -k
-ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make modules_install
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 
 # bump the control version
 OLD_VERSION=$(grep "^Version: *" /kernel_builder/package/DEBIAN/control | sed "s/Version: //;")
