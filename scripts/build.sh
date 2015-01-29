@@ -5,15 +5,53 @@ MOD_DIR=`mktemp -d`
 PKG_DIR=`mktemp -d`
 TOOLS_DIR="/rpi_tools"
 NUM_CPUS=`nproc`
+GIT_REPO="https://github.com/raspberrypi/linux"
+GIT_BRANCH="rpi-3.15.y"
+COMPILE_CONFIG="arch/arm/configs/bcmrpi_defconfig"
 
-GIT_REPO="--branch rpi-3.15.y https://github.com/raspberrypi/linux"
+function usage() {
+  cat << EOF
+usage: adabuild [options]
+ This will build the Raspberry Pi Kernel.
+ OPTIONS:
+    -h        Show this message
+    -r        The remote git repo to clone
+              Default: $GIT_REPO
+    -b        The git branch to use
+              Default: $GIT_BRANCH
+    -c        The config file to use when compiling
+              Default: $COMPILE_CONFIG
+EOF
+}
 
-if [ "$1" == "" ]; then
-  echo "Warning: Repo argument not supplied, using: ${GIT_REPO}"
-else
-  # use temp dir if we aren't using adafruit's linux repo
+function clone() {
+  echo "**** CLONING GIT REPO ****"
+  echo "REPO: ${GIT_REPO}"
+  echo "BRANCH: ${GIT_BRANCH}"
+  git clone --depth 1 --recursive --branch $GIT_BRANCH ${GIT_REPO} $GIT_DIR
+}
+
+while getopts "hb:r:c:" opt; do
+  case "$opt" in
+  h)  usage
+      exit 0
+      ;;
+  b)  GIT_BRANCH="$OPTARG"
+      ;;
+  r)  GIT_REPO="$OPTARG"
+      ;;
+  c)  COMPILE_CONFIG="$OPTARG"
+      ;;
+  \?) usage
+      exit 1
+      ;;
+  esac
+done
+
+if [ "$GIT_REPO" != "https://github.com/raspberrypi/linux" ]; then
+  # use temp dir if we aren't using the default linux repo
   GIT_DIR=`mktemp -d`
-  git clone --depth 1 --recursive $GIT_REPO $GIT_DIR
+  clone
 fi
 
 if [ ! -d $TOOLS_DIR ]; then
@@ -23,18 +61,17 @@ fi
 
 cd $TOOLS_DIR
 git pull
-
 CCPREFIX=${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-
 
 if [ ! -d $GIT_DIR ]; then
-  echo "**** CLONING GIT REPO ****"
-  git clone --depth 1 --recursive $GIT_REPO $GIT_DIR
+  clone
 fi
 
 cd $GIT_DIR
+git checkout $GIT_BRANCH
 git pull
 git submodule update --init
-cp arch/arm/configs/bcmrpi_defconfig .config
+cp ${COMPILE_CONFIG} .config
 
 echo "**** COMPILING KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
@@ -52,3 +89,5 @@ cp -r ${MOD_DIR}/lib ${PKG_DIR}
 
 echo "**** BUILDING DEB PACKAGE ****"
 fakeroot dpkg-deb -b $PKG_DIR /tmp/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb
+
+echo -e "\n\n OUTPUT: /tmp/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb \n\n"
