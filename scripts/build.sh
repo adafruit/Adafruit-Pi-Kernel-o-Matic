@@ -48,6 +48,8 @@ while getopts "hb:r:c:" opt; do
   esac
 done
 
+echo -e "\n\n**** USING ${NUM_CPUS} AVAILABLE CORES ****\n\n"
+
 if [ "$GIT_REPO" != "https://github.com/raspberrypi/linux" ]; then
   # use temp dir if we aren't using the default linux repo
   GIT_DIR=`mktemp -d`
@@ -90,4 +92,4 @@ cp -r ${MOD_DIR}/lib ${PKG_DIR}
 echo "**** BUILDING DEB PACKAGE ****"
 fakeroot dpkg-deb -b $PKG_DIR /tmp/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb
 
-echo -e "\n\n OUTPUT: /tmp/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb \n\n"
+echo -e "\n\n**** DONE: /tmp/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb ****\n\n"
