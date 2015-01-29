@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-GIT_DIR="/ada_linux"
+GIT_DIR="/rpi_linux"
 MOD_DIR=`mktemp -d`
 PKG_DIR=`mktemp -d`
 TOOLS_DIR="/rpi_tools"
 NUM_CPUS=`nproc`
 
-GIT_REPO="--branch rpi-3.15.y https://github.com/adafruit/adafruit-raspberrypi-linux"
+GIT_REPO="--branch rpi-3.15.y https://github.com/raspberrypi/linux"
 
 if [ "$1" == "" ]; then
   echo "Warning: Repo argument not supplied, using: ${GIT_REPO}"
@@ -32,8 +32,9 @@ if [ ! -d $GIT_DIR ]; then
 fi
 
 cd $GIT_DIR
+git pull
 git submodule update --init
-cp arch/arm/configs/adafruit_defconfig .config
+cp arch/arm/configs/bcmrpi_defconfig .config
 
 echo "**** COMPILING KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
