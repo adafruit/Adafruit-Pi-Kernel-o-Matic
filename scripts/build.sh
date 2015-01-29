@@ -86,7 +86,7 @@ read -e -p "Enter the new version: " -i "${OLD_VERSION}" NEW_VERSION
 sed -i /kernel_builder/package/DEBIAN/control -e "s/^Version.*/Version: ${NEW_VERSION}/"
 
 cp -r /kernel_builder/package/* $PKG_DIR
-cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img 
+cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib ${PKG_DIR}
 
 echo "**** BUILDING DEB PACKAGE ****"
