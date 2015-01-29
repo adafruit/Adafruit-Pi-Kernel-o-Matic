@@ -15,6 +15,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     host = RbConfig::CONFIG['host_os']
 
+    # via https://github.com/btopro/elmsln-vagrant/blob/master/Vagrantfile#L33
     # 1/4 system memory & all cpu cores
     if host =~ /darwin/
       cpus = `sysctl -n hw.ncpu`.to_i
