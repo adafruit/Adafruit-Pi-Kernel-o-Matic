@@ -12,6 +12,7 @@ if [ "$1" == "" ]; then
 else
   # use temp dir if we aren't using adafruit's linux repo
   GIT_DIR=`mktemp -d`
+  git clone --depth 1 --recursive $GIT_REPO $GIT_DIR
 fi
 
 if [ ! -d $TOOLS_DIR ]; then
@@ -31,7 +32,7 @@ fi
 
 cd $GIT_DIR
 git reset --hard origin/master
-git submodule init && git submodule update
+git submodule update --init
 cp arch/arm/configs/bcmrpi_defconfig .config
 
 echo "**** COMPILING KERNEL ****"
