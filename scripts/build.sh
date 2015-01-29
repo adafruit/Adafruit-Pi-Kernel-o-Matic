@@ -13,24 +13,23 @@ fi
 
 if [ ! -d /rpi_tools ]; then
   echo "**** CLONING TOOL REPO ****"
-  git clone --depth 1 --recursive https://github.com/raspberrypi/tools $TOOLS_DIR
+  git clone --depth 1 https://github.com/raspberrypi/tools $TOOLS_DIR
 fi
 
 cd $TOOL_DIR
 git pull
 
-
 CCPREFIX=${TOOL_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-
 
 cd $GIT_DIR
 echo "**** CLONING GIT REPO ****"
-git clone --depth 1 $GIT_REPO .
+git clone --depth 1 --recursive $GIT_REPO .
 cp arch/arm/configs/bcmrpi_defconfig .config
 
 echo "**** COMPILING KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
-ARCH=arm CROSS_COMPILE=/usr/bin/arm-linux-gnueabi- -k
-make ARCH=arm modules_install INSTALL_MOD_PATH=$MOD_DIR
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make bcmrpi_defconfig
+ARCH=arm INSTALL_MOD_PATH=${MOD_DIR} make modules_install
 
 # bump the control version
 OLD_VERSION=$(grep "^Version: *" /kernel_builder/package/DEBIAN/control | sed "s/Version: //;")
