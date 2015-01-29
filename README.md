@@ -13,7 +13,7 @@ $ vagrant up
 Once the vagrant box is up, SSH in:
 
 ```
-$ vagrant up
+$ vagrant ssh
 ```
 
 Now that you are connected to the VM, check out the help for a list of options:
