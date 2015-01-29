@@ -5,7 +5,7 @@ MOD_DIR=`mktemp -d`
 PKG_DIR=`mktemp -d`
 TOOLS_DIR="/rpi_tools"
 
-GIT_REPO="https://github.com/adafruit/adafruit-raspberrypi-linux"
+GIT_REPO="--branch rpi-3.15.y --single-branch https://github.com/adafruit/adafruit-raspberrypi-linux"
 
 if [ "$1" == "" ]; then
   echo "Warning: Repo argument not supplied, using: ${GIT_REPO}"
