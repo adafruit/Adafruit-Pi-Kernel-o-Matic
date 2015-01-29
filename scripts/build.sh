@@ -43,7 +43,7 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS
 # bump the control version
 OLD_VERSION=$(grep "^Version: *" /kernel_builder/package/DEBIAN/control | sed "s/Version: //;")
 read -e -p "Enter the new version: " -i "${OLD_VERSION}" NEW_VERSION
-sed -i /kernel_builder/package/DEBIAN/control -e "s/^Version/${NEW_VERSION}/"
+sed -i /kernel_builder/package/DEBIAN/control -e "s/^Version*/Version: ${NEW_VERSION}/"
 
 cp -r /kernel_builder/package/* $PKG_DIR
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img 
