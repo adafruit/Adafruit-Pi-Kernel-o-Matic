@@ -33,7 +33,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--ioapic", "on"]
 
   end
-  config.vm.provision "file", source: "scripts", destination: "/home/vagrant/kernel_builder"
 
   config.vm.provision "shell", path: "provision.sh"
 

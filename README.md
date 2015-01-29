@@ -1,5 +1,7 @@
 # Raspberry Pi Cross-Compile Vagrant Box
 
+THIS STILL NEEDS TESTING AND IS NOT READY FOR PRODUCTION USE
+
 ## Compiling The Raspbian Kernel
 
 Clone the git repo & start the vagrant box:
