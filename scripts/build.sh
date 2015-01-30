@@ -48,7 +48,7 @@ while getopts "hb:r:c:" opt; do
   esac
 done
 
-echo -e "\n\n**** USING ${NUM_CPUS} AVAILABLE CORES ****\n\n"
+echo -e "\n**** USING ${NUM_CPUS} AVAILABLE CORES ****\n"
 
 if [ "$GIT_REPO" != "https://github.com/raspberrypi/linux" ]; then
   # use temp dir if we aren't using the default linux repo
