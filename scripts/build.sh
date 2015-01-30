@@ -89,8 +89,8 @@ cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib ${PKG_DIR}
 
 echo "**** BUILDING DEB PACKAGE ****"
-fakeroot dpkg-deb -b $PKG_DIR /vagrant/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb
+fakeroot dpkg-deb -b $PKG_DIR /vagrant/raspberrypi-bootloader-custom_${NEW_VERSION}.deb
 
-echo -e "\n**** DONE: /vagrant/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb ****\n"
+echo -e "\n**** DONE: /vagrant/raspberrypi-bootloader-custom_${NEW_VERSION}.deb ****\n"
 
-echo "THE .DEB PACKAGE SHOULD NOW BE AVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n"
+echo -e "THE raspberrypi-bootloader-custom_${NEW_VERSION}.deb PACKAGE\nSHOULD NOW BE AVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
