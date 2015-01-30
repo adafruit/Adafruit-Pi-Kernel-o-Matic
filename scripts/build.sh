@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ $EUID -ne 0 ]]; then
+   echo "adabuild must be run as root. try: sudo adabuild"
+   exit 1
+fi
+
 GIT_DIR="/rpi_linux"
 MOD_DIR=`mktemp -d`
 PKG_DIR=`mktemp -d`
