@@ -7,7 +7,12 @@ TOOLS_DIR="/rpi_tools"
 NUM_CPUS=`nproc`
 GIT_REPO="https://github.com/raspberrypi/linux"
 GIT_BRANCH=""
-COMPILE_CONFIG="arch/arm/configs/bcmrpi_defconfig"
+
+if [ -f /vagrant/saved_config ]; then
+  COMPILE_CONFIG="/vagrant/saved_config"
+else
+  COMPILE_CONFIG="arch/arm/configs/bcmrpi_defconfig"
+fi
 
 function usage() {
   cat << EOF
@@ -73,18 +78,19 @@ cd $GIT_DIR
 git pull
 git submodule update --init
 cp ${COMPILE_CONFIG} .config
+cp .config /vagrant/saved_config
 
 echo "**** COMPILING KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
 ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 
-# bump the control version
-OLD_VERSION=$(grep "^Version: *" /kernel_builder/package/DEBIAN/control | sed "s/Version: //;")
-read -e -p "Enter the new version: " -i "${OLD_VERSION}" NEW_VERSION
-sed -i /kernel_builder/package/DEBIAN/control -e "s/^Version.*/Version: ${NEW_VERSION}/"
-
+# confirm the control version
 cp -r /kernel_builder/package/* $PKG_DIR
+OLD_VERSION=`date +%Y%m%d`
+read -e -p "Confirm the new version: " -i "${OLD_VERSION}-1" NEW_VERSION
+sed -i $PKG_DIR/DEBIAN/control -e "s/^Version.*/Version: ${NEW_VERSION}/"
+
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib ${PKG_DIR}
 
