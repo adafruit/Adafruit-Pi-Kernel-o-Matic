@@ -1,5 +1,5 @@
-Package: raspberrypi-bootloader-adafruit
-Source: raspberrypi-firmware-adafruit
+Package: raspberrypi-bootloader
+Source: raspberrypi-firmware
 Conflicts: raspberrypi-bootloader
 Replaces: raspberrypi-bootloader
 Provides: raspberrypi-bootloader
@@ -9,7 +9,5 @@ Maintainer: Adafruit <support@adafruit.com>
 Section: admin
 Priority: extra
 Homepage: https://github.com/raspberrypi/firmware
-Description: Raspberry Pi kernel/bootloader with Adafruit patches
- This package contains the Raspberry Pi bootloader, kernel, and modules,
- and includes patches from Adafruit for PWM support, power switch support,
- and LCD support.
+Description: Custom Raspberry Pi kernel built by Adafruit's Kernel-o-Matic
+ This package contains the Raspberry Pi bootloader, kernel, and modules.

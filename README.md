@@ -1,6 +1,6 @@
-# Raspberry Pi Cross-Compile Vagrant Box
+# Raspberry Pi Kernel-o-Matic
 
-THIS STILL NEEDS TESTING AND IS NOT READY FOR PRODUCTION USE
+![kernel-o-matic](/docs/pngn_kernelomatic_with_logos.png?raw=true)
 
 ![kernel-o-matic](/docs/pngn_kernelomatic_with_logos.png?raw=true)
 
