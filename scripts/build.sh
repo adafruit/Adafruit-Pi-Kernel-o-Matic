@@ -6,7 +6,7 @@ PKG_DIR=`mktemp -d`
 TOOLS_DIR="/rpi_tools"
 NUM_CPUS=`nproc`
 GIT_REPO="https://github.com/raspberrypi/linux"
-GIT_BRANCH="rpi-3.15.y"
+GIT_BRANCH=""
 COMPILE_CONFIG="arch/arm/configs/bcmrpi_defconfig"
 
 function usage() {
@@ -18,7 +18,7 @@ usage: adabuild [options]
     -r        The remote git repo to clone
               Default: $GIT_REPO
     -b        The git branch to use
-              Default: $GIT_BRANCH
+              Default: Default git branch of repo
     -c        The config file to use when compiling
               Default: $COMPILE_CONFIG
 EOF
@@ -28,7 +28,7 @@ function clone() {
   echo "**** CLONING GIT REPO ****"
   echo "REPO: ${GIT_REPO}"
   echo "BRANCH: ${GIT_BRANCH}"
-  git clone --depth 1 --recursive --branch $GIT_BRANCH ${GIT_REPO} $GIT_DIR
+  git clone --depth 1 --recursive $GIT_BRANCH ${GIT_REPO} $GIT_DIR
 }
 
 while getopts "hb:r:c:" opt; do
@@ -36,7 +36,7 @@ while getopts "hb:r:c:" opt; do
   h)  usage
       exit 0
       ;;
-  b)  GIT_BRANCH="$OPTARG"
+  b)  GIT_BRANCH="--branch $OPTARG"
       ;;
   r)  GIT_REPO="$OPTARG"
       ;;
@@ -70,7 +70,6 @@ if [ ! -d $GIT_DIR ]; then
 fi
 
 cd $GIT_DIR
-git checkout $GIT_BRANCH
 git pull
 git submodule update --init
 cp ${COMPILE_CONFIG} .config
@@ -90,6 +89,8 @@ cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib ${PKG_DIR}
 
 echo "**** BUILDING DEB PACKAGE ****"
-fakeroot dpkg-deb -b $PKG_DIR /tmp/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb
+fakeroot dpkg-deb -b $PKG_DIR /vagrant/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb
 
-echo -e "\n\n**** DONE: /tmp/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb ****\n\n"
+echo -e "\n**** DONE: /vagrant/raspberrypi-bootloader-adafruit_${NEW_VERSION}.deb ****\n"
+
+echo "THE .DEB PACKAGE SHOULD NOW BE AVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n"
