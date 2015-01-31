@@ -2,8 +2,6 @@
 
 ![kernel-o-matic](/docs/pngn_kernelomatic_with_logos.png?raw=true)
 
-![kernel-o-matic](/docs/pngn_kernelomatic_with_logos.png?raw=true)
-
 ## Compiling The Raspbian Kernel
 
 Clone the git repo & start the vagrant box:
