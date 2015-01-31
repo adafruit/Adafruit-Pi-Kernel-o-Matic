@@ -2,7 +2,7 @@
 
 ![kernel-o-matic](/docs/pngn_kernelomatic_with_logos.gif?raw=true)
 
-## Compiling The Raspbian Kernel
+## Compiling The Raspberry Pi Kernel
 
 Clone the git repo & start the vagrant box:
 
@@ -29,7 +29,7 @@ usage: adabuild [options]
     -r        The remote git repo to clone
               Default: https://github.com/raspberrypi/linux
     -b        The git branch to use
-              Default: rpi-3.15.y
+              Default: The default branch of the repo
     -c        The config file to use when compiling
               Default: arch/arm/configs/bcmrpi_defconfig
 ```
