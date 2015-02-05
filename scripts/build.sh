@@ -39,7 +39,7 @@ GIT_BRANCH=""
 if [ -f /vagrant/saved_config ]; then
   COMPILE_CONFIG="/vagrant/saved_config"
 else
-  COMPILE_CONFIG="arch/arm/configs/bcmrpi_defconfig"
+  COMPILE_CONFIG="arch/arm/configs/bcm2709_defconfig"
 fi
 
 function usage() {
@@ -102,8 +102,8 @@ fi
 # make sure tools dir is up to date
 cd $TOOLS_DIR
 git pull
-CCPREFIX="${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-"
-GCCPREFIX="${CCPREFIX}gcc -mcpu=cortex-a7"
+CCPREFIX="${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-"
+
 # make sure firmware dir is up to date
 cd $FIRMWARE_DIR
 git pull
@@ -116,15 +116,16 @@ fi
 cd $GIT_DIR
 git pull
 git submodule update --init
+echo "**** USING ${COMPILE_CONFIG} ****"
 cp ${COMPILE_CONFIG} .config
 
-ARCH=arm CROSS_COMPILE=${CCPREFIX} CC=${GCCPREFIX} make menuconfig
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
 echo "**** SAVING A COPY OF YOUR CONFIG TO /vagrant/saved_config ****"
 cp .config /vagrant/saved_config
 
 echo "**** COMPILING KERNEL ****"
-ARCH=arm CROSS_COMPILE=${CCPREFIX} CC=${GCCPREFIX} make -j${NUM_CPUS} -k
-ARCH=arm CROSS_COMPILE=${CCPREFIX} CC=${GCCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 
 # pull together the debian package folder
 cp -r /kernel_builder/package/* $PKG_DIR
@@ -134,6 +135,7 @@ for FN in $BOOT_FILES; do
   cp $FIRMWARE_DIR/boot/$FN $PKG_DIR/boot
 done
 mv $PKG_DIR/boot/kernel.img $PKG_DIR/boot/kernel_emergency.img
+mv $PKG_DIR/boot/kernel7.img $PKG_DIR/boot/kernel7_emergency.img
 
 # confirm package version
 OLD_VERSION=`date +%Y%m%d`
@@ -142,6 +144,7 @@ sed -i $PKG_DIR/DEBIAN/control -e "s/^Version.*/Version: ${NEW_VERSION}/"
 
 # copy the compiled kernel to the package
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
+cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
 # copy the compiled modules to the package
 cp -r ${MOD_DIR}/lib ${PKG_DIR}
 
