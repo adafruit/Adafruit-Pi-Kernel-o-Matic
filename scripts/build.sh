@@ -102,8 +102,8 @@ fi
 # make sure tools dir is up to date
 cd $TOOLS_DIR
 git pull
-CCPREFIX=${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-
-
+CCPREFIX="${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-"
+GCCPREFIX="${CCPREFIX}gcc -mcpu=cortex-a7"
 # make sure firmware dir is up to date
 cd $FIRMWARE_DIR
 git pull
@@ -118,13 +118,13 @@ git pull
 git submodule update --init
 cp ${COMPILE_CONFIG} .config
 
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
+ARCH=arm CROSS_COMPILE=${CCPREFIX} CC=${GCCPREFIX} make menuconfig
 echo "**** SAVING A COPY OF YOUR CONFIG TO /vagrant/saved_config ****"
 cp .config /vagrant/saved_config
 
 echo "**** COMPILING KERNEL ****"
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
-ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
+ARCH=arm CROSS_COMPILE=${CCPREFIX} CC=${GCCPREFIX} make -j${NUM_CPUS} -k
+ARCH=arm CROSS_COMPILE=${CCPREFIX} CC=${GCCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 
 # pull together the debian package folder
 cp -r /kernel_builder/package/* $PKG_DIR
