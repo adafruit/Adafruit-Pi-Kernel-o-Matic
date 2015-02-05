@@ -130,7 +130,7 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS
 # pull together the debian package folder
 cp -r /kernel_builder/package/* $PKG_DIR
 mkdir $PKG_DIR/boot
-BOOT_FILES="bootcode.bin fixup.dat fixup_cd.dat fixup_x.dat kernel.img start.elf start_cd.elf start_x.elf"
+BOOT_FILES="bootcode.bin fixup.dat fixup_cd.dat fixup_x.dat kernel.img kernel7.img start.elf start_cd.elf start_x.elf"
 for FN in $BOOT_FILES; do
   cp $FIRMWARE_DIR/boot/$FN $PKG_DIR/boot
 done
