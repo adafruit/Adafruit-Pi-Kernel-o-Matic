@@ -1,0 +1,70 @@
+# Adafruit modified debian control file
+# original: https://github.com/asb/firmware/blob/debian/debian/control
+
+Source: raspberrypi-firmware
+Priority: extra
+Maintainer: Alex Bradbury <asb@asbradbury.org>
+Build-Depends: debhelper (>= 8.0.0), quilt
+Standards-Version: 3.9.2
+Section: libs
+Homepage: https://github.com/raspberrypi/firmware
+#Vcs-Git: todo
+#Vcs-Browser: todo
+
+Package: libraspberrypi0-custom
+Section: libs
+Conflicts: libraspberrypi0
+Replaces: libraspberrypi0
+Provides: libraspberrypi0
+Architecture: armel armhf
+Depends: raspberrypi-bootloader-custom (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: EGL/GLES/OpenVG/etc. libraries for the Raspberry Pi's VideoCore IV
+ This package contains implementations of EGL, OpenGL ES, OpenVG, OpenWF
+ Composition, and others for the Raspberry Pi's VideoCore IV multimedia
+ processor.
+
+Package: libraspberrypi-dev-custom
+Section: libdevel
+Conflicts: libraspberrypi-dev
+Replaces: libraspberrypi-dev
+Provides: libraspberrypi-dev
+Architecture: armel armhf
+Depends: libraspberrypi0-custom (= ${binary:Version}), ${misc:Depends}
+Description: EGL/GLES/OpenVG/etc. libraries for the Raspberry Pi's VideoCore IV (headers)
+ This package contains headers and other development files for implementations
+ of EGL, OpenGL ES, OpenVG, OpenWF Composition, and others for the Raspberry
+ Pi's VideoCore IV multimedia processor.
+
+Package: libraspberrypi-doc-custom
+Section: libdevel
+Conflicts: libraspberrypi-doc
+Replaces: libraspberrypi-doc
+Provides: libraspberrypi-doc
+Architecture: armel armhf
+Depends: libraspberrypi0-custom (= ${binary:Version}), ${misc:Depends}
+Description: EGL/GLES/OpenVG/etc. libraries for the Raspberry Pi's VideoCore IV (headers)
+ This package contains headers, example code, and other development files for
+ implementations of EGL, OpenGL ES, OpenVG, OpenWF Composition, and others for
+ the Raspberry Pi's VideoCore IV multimedia processor.
+
+Package: libraspberrypi-bin-custom
+Section: misc
+Conflicts: libraspberrypi-bin
+Replaces: libraspberrypi-bin
+Provides: libraspberrypi-bin
+Architecture: armel armhf
+Depends: libraspberrypi0-custom (= ${binary:Version}), ${misc:Depends}
+Description: Miscellaneous Raspberry Pi utilities
+ This package contains various utilities for interacting with the Raspberry
+ Pi's VideoCore IV.
+
+Package: raspberrypi-bootloader-custom
+Section: admin
+Conflicts: raspberrypi-bootloader
+Replaces: raspberrypi-bootloader
+Provides: raspberrypi-bootloader
+Architecture: armel armhf
+Depends: ${misc:Depends}
+Description: Raspberry Pi bootloader
+ This package contains the Raspberry Pi bootloader (plus, temporarily, a
+ kernel).
