@@ -29,9 +29,11 @@ usage: adabuild [options]
     -r        The remote git repo to clone
               Default: https://github.com/raspberrypi/linux
     -b        The git branch to use
-              Default: The default branch of the repo
-    -c        The config file to use when compiling
+              Default: Default git branch of repo
+    -1        The config file to use when compiling for Raspi v1
               Default: arch/arm/configs/bcmrpi_defconfig
+    -2        The config file to use when compiling for Raspi v2
+              Default: arch/arm/configs/bcm2709_defconfig
 ```
 
 Compile with default options:
