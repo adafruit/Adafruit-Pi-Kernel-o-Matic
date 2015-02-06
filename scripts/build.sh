@@ -28,7 +28,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 GIT_DIR="/rpi_linux"
-MOD_DIR=`mktemp -d`
+V1_MOD_DIR=`mktemp -d`
+V2_MOD_DIR=`mktemp -d`
 PKG_DIR=`mktemp -d`
 TOOLS_DIR="/opt/rpi_tools"
 FIRMWARE_DIR="/opt/rpi_firmware"
@@ -36,11 +37,8 @@ NUM_CPUS=`nproc`
 GIT_REPO="https://github.com/raspberrypi/linux"
 GIT_BRANCH=""
 
-if [ -f /vagrant/saved_config ]; then
-  COMPILE_CONFIG="/vagrant/saved_config"
-else
-  COMPILE_CONFIG="arch/arm/configs/bcm2709_defconfig"
-fi
+V1_COMPILE_CONFIG="arch/arm/configs/bcmrpi_defconfig"
+V2_COMPILE_CONFIG="arch/arm/configs/bcm2709_defconfig"
 
 function usage() {
   cat << EOF
@@ -52,8 +50,11 @@ usage: adabuild [options]
               Default: $GIT_REPO
     -b        The git branch to use
               Default: Default git branch of repo
-    -c        The config file to use when compiling
-              Default: $COMPILE_CONFIG
+    -1        The config file to use when compiling for Raspi v1
+              Default: $V1_COMPILE_CONFIG
+    -2        The config file to use when compiling for Raspi v2
+              Default: $V2_COMPILE_CONFIG
+
 EOF
 }
 
@@ -64,7 +65,7 @@ function clone() {
   git clone --depth 1 --recursive $GIT_BRANCH ${GIT_REPO} $GIT_DIR
 }
 
-while getopts "hb:r:c:" opt; do
+while getopts "hb:r:1:2:" opt; do
   case "$opt" in
   h)  usage
       exit 0
@@ -73,7 +74,9 @@ while getopts "hb:r:c:" opt; do
       ;;
   r)  GIT_REPO="$OPTARG"
       ;;
-  c)  COMPILE_CONFIG="$OPTARG"
+  1)  V1_COMPILE_CONFIG="$OPTARG"
+      ;;
+  2)  V2_COMPILE_CONFIG="$OPTARG"
       ;;
   \?) usage
       exit 1
@@ -108,25 +111,6 @@ CCPREFIX="${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/a
 cd $FIRMWARE_DIR
 git pull
 
-# if we don't have a git dir, clone the repo
-if [ ! -d $GIT_DIR ]; then
-  clone
-fi
-
-cd $GIT_DIR
-git pull
-git submodule update --init
-echo "**** USING ${COMPILE_CONFIG} ****"
-cp ${COMPILE_CONFIG} .config
-
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
-echo "**** SAVING A COPY OF YOUR CONFIG TO /vagrant/saved_config ****"
-cp .config /vagrant/saved_config
-
-echo "**** COMPILING KERNEL ****"
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
-ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
-
 # pull together the debian package folder
 cp -r /kernel_builder/package/* $PKG_DIR
 mkdir $PKG_DIR/boot
@@ -137,16 +121,50 @@ done
 mv $PKG_DIR/boot/kernel.img $PKG_DIR/boot/kernel_emergency.img
 mv $PKG_DIR/boot/kernel7.img $PKG_DIR/boot/kernel7_emergency.img
 
+# if we don't have a git dir, clone the repo
+if [ ! -d $GIT_DIR ]; then
+  clone
+fi
+
+# make sure we are up to date
+cd $GIT_DIR
+git pull
+git submodule update --init
+
+# RasPi v1 build
+rm .config
+make ARCH=arm clean
+echo "**** CONFIGURING Pi v1 kernel USING ${V1_COMPILE_CONFIG} ****"
+cp ${V1_COMPILE_CONFIG} .config
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
+echo "**** SAVING A COPY OF YOUR v1 CONFIG TO /vagrant/v1_saved_config ****"
+cp .config /vagrant/v1_saved_config
+echo "**** COMPILING v1 KERNEL ****"
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${V1_MOD_DIR} make -j${NUM_CPUS} modules_install
+cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
+
+# RasPi v2 build
+rm .config
+make ARCH=arm clean
+echo "**** CONFIGURING Pi v2 kernel USING ${V2_COMPILE_CONFIG} ****"
+cp ${V2_COMPILE_CONFIG} .config
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
+echo "**** SAVING A COPY OF YOUR v2 CONFIG TO /vagrant/v2_saved_config ****"
+cp .config /vagrant/v2_saved_config
+echo "**** COMPILING v2 KERNEL ****"
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${V2_MOD_DIR} make -j${NUM_CPUS} modules_install
+cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
+
 # confirm package version
 OLD_VERSION=`date +%Y%m%d`
 read -e -p "Confirm the new version: " -i "1.${OLD_VERSION}-1" NEW_VERSION
 sed -i $PKG_DIR/DEBIAN/control -e "s/^Version.*/Version: ${NEW_VERSION}/"
 
-# copy the compiled kernel to the package
-cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
-cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
 # copy the compiled modules to the package
-cp -r ${MOD_DIR}/lib ${PKG_DIR}
+cp -r ${V1_MOD_DIR}/lib ${PKG_DIR}
+cp -r ${V2_MOD_DIR}/lib ${PKG_DIR}
 
 echo "**** BUILDING DEB PACKAGE ****"
 fakeroot dpkg-deb -b $PKG_DIR /vagrant/raspberrypi-bootloader-custom_${NEW_VERSION}.deb
