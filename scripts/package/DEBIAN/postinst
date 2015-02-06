@@ -1,5 +1,5 @@
 #!/bin/sh -e
-FILES="bootcode.bin fixup.dat fixup_cd.dat fixup_x.dat kernel.img kernel_cutdown.img kernel_emergency.img start.elf start_cd.elf start_x.elf"
+FILES="bootcode.bin fixup.dat fixup_cd.dat fixup_x.dat kernel.img kernel7.img kernel_cutdown.img kernel7_emergency.img kernel_emergency.img start.elf start_cd.elf start_x.elf"
 
 for FN in $FILES; do
   # Need to rm first to avoid error "rename involves overwriting ... with 
