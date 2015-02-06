@@ -22,8 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 apt-get update
-apt-get install -y git unzip build-essential libncurses5-dev
+apt-get install -y git unzip build-essential libncurses5-dev debhelper quilt devscripts
 
-if [ ! -f /usr/sbin/adabuild ]; then
-  ln -s /vagrant/build.sh /usr/sbin/adabuild
+if [ -L /usr/sbin/adabuild ]; then
+  rm /usr/sbin/adabuild
 fi
+
+ln -s /vagrant/build.sh /usr/sbin/adabuild
