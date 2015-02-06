@@ -35,7 +35,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   end
 
-  config.vm.synced_folder "scripts", "/kernel_builder", owner: "root", group: "root"
   config.vm.provision "shell", path: "provision.sh"
 
 end
