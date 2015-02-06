@@ -142,7 +142,7 @@ CCPREFIX=${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linu
 
 # RasPi v1 build
 rm .config
-make ARCH=arm clean
+#make ARCH=arm clean
 echo "**** CONFIGURING Pi v1 kernel USING ${V1_COMPILE_CONFIG} ****"
 cp ${V1_COMPILE_CONFIG} .config
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
@@ -158,7 +158,7 @@ CCPREFIX="${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/a
 
 # RasPi v2 build
 rm .config
-make ARCH=arm clean
+#make ARCH=arm clean
 echo "**** CONFIGURING Pi v2 kernel USING ${V2_COMPILE_CONFIG} ****"
 cp ${V2_COMPILE_CONFIG} .config
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
@@ -171,8 +171,8 @@ cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
 cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
 # create new package version
-tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz $PKG_TMP
-mv raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz $PKG_TMP
+cd $PKG_TMP
+tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz raspberrypi-firmware_${NEW_VERSION}
 
 # copy debian files to package directory
 cp -r $DEBIAN_DIR/debian $PKG_DIR
