@@ -8,8 +8,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "ubuntu/precise32"
 
-  config.vm.network "public_network"
-
   config.vm.provider "virtualbox" do |v|
 
     v.gui = false
