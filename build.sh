@@ -184,7 +184,12 @@ chown -R vagrant $PKG_TMP
 su vagrant -c "debuild --no-lintian -ePATH=${PATH}:${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin -b -aarmhf -us -uc"
 
 cd $PKG_TMP
-tar czf custom_kernel_${NEW_VERSION}-1.tar.gz *.deb
+mkdir custom_kernel_${NEW_VERSION}-1
+cp *.deb custom_kernel_${NEW_VERSION}-1
+cp /vagrant/install.sh custom_kernel_${NEW_VERSION}-1
+cp /vagrant/docs/INSTALL custom_kernel_${NEW_VERSION}-1
+chmod +x custom_kernel_${NEW_VERSION}-1/install.sh
+tar czf custom_kernel_${NEW_VERSION}-1.tar.gz custom_kernel_${NEW_VERSION}-1
 mv custom_kernel_${NEW_VERSION}-1.tar.gz /vagrant
 
 echo -e "THE custom_kernel_${NEW_VERSION}-1.tar.gz ARCHIVE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
