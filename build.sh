@@ -142,7 +142,7 @@ CCPREFIX=${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linu
 
 # RasPi v1 build
 rm .config
-#make ARCH=arm clean
+make ARCH=arm clean
 echo "**** CONFIGURING Pi v1 kernel USING ${V1_COMPILE_CONFIG} ****"
 cp ${V1_COMPILE_CONFIG} .config
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
@@ -154,11 +154,11 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
-CCPREFIX="${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-"
+CCPREFIX=${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-
 
 # RasPi v2 build
 rm .config
-#make ARCH=arm clean
+make ARCH=arm clean
 echo "**** CONFIGURING Pi v2 kernel USING ${V2_COMPILE_CONFIG} ****"
 cp ${V2_COMPILE_CONFIG} .config
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
@@ -170,20 +170,21 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
 cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
-# create new package version
 cd $PKG_TMP
 tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz raspberrypi-firmware_${NEW_VERSION}
 
 # copy debian files to package directory
 cp -r $DEBIAN_DIR/debian $PKG_DIR
 cp -r /vagrant/debian/* $PKG_DIR/debian
+touch $PKG_DIR/debian/files
 
 cd $PKG_DIR
-dch -v ${NEW_VERSION}-1 --package raspberrypi-firmware "Adds Adafruit Kernel-o-Matic Kernel"
-debuild -us -uc
+dch -v ${NEW_VERSION}-1 --package raspberrypi-firmware 'Adds Adafruit Kernel-o-Matic custom kernel'
+chown -R vagrant $PKG_TMP
+su vagrant -c "debuild -ePATH=$PATH:${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin -b --no-lintian -aarmhf -us -uc"
 
-echo $PKG_DIR
+cd $PKG_TMP
+tar czf *.deb custom_kernel_${NEW_VERSION}-1.tar.gz
+mv custom_kernel_${NEW_VERSION}-1.tar.gz /vagrant
 
-echo -e "\n**** DONE: /vagrant/raspberrypi-bootloader-custom_${NEW_VERSION}.deb ****\n"
-
-echo -e "THE raspberrypi-bootloader-custom_${NEW_VERSION}.deb PACKAGE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
+echo -e "THE custom_kernel_${NEW_VERSION}-1.tar.gz ARCHIVE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
