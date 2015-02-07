@@ -13,6 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "virtualbox" do |v|
 
     v.gui = false
+    v.name = "kernel_o_matic"
 
     host = RbConfig::CONFIG['host_os']
 
