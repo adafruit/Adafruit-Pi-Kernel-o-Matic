@@ -21,16 +21,37 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-apt-get update
-apt-get install -y git unzip build-essential libncurses5-dev debhelper quilt devscripts
 
-if [ -L /usr/sbin/adabuild ]; then
-  rm /usr/sbin/adabuild
+if [[ $EUID -ne 0 ]]; then
+   echo "install.sh must be run as root. try: sudo install.sh"
+   exit 1
 fi
 
-ln -s /vagrant/build.sh /usr/sbin/adabuild
+# via: http://stackoverflow.com/a/5196108
+function exitonerr {
 
-if ! grep -Fq "Adafruit" /home/vagrant/.bashrc; then
-  echo 'export EMAIL="support@adafruit.com"' >> /home/vagrant/.bashrc
-  echo 'export DEBFULLNAME="Adafruit"' >> /home/vagrant/.bashrc
+  "$@"
+  local status=$?
+
+  if [ $status -ne 0 ]; then
+    echo "Error completing: $1" >&2
+    exit 1
+  fi
+
+  return $status
+
+}
+
+echo "**** Installing custom kernel ****"
+exitonerr dpkg -i raspberrypi-bootloader*
+exitonerr dpkg -i libraspberrypi0*
+exitonerr dpkg -i libraspberrypi-*
+echo "**** Kernel install complete! ****"
+echo
+
+read -p "Reboot to apply changes? (y/n): " -n 1 -r
+echo
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  reboot
 fi

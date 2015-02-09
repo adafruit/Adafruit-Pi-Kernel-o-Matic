@@ -1,9 +1,0 @@
-#!/bin/sh
-
-set -e
-
-# Automatically added by dh_installmodules
-if [ -e /boot/System.map-3.6.11+ ]; then
-	depmod -a -F /boot/System.map-3.6.11+ 3.6.11+ || true
-fi
-# End automatically added section

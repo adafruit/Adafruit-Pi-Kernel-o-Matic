@@ -1,0 +1,38 @@
+# Installation
+
+Copy the custom kernel tar.gz archive to your Raspberry Pi, and use
+the `tar` command to extract the archive. In the example, the archive
+we will be using is called `custom_kernel_1.20150207-1.tar.gz`. Replace
+the name of the example archive with the name of your custom kernel
+tar.gz archive.
+
+```
+$ tar xf custom_kernel_1.20150207-1.tar.gz
+```
+
+You can now `cd` into the extracted folder. The extracted
+folder will have the same name as the archive, minus the
+.tar.gz suffix.
+
+```
+$ cd custom_kernel_1.20150207-1
+```
+
+Now you are ready to run the install script. **Warning!** *Installing
+a broken kernel can render your Raspberry Pi unusable. Please backup
+your SD card before continuing.*
+
+```
+$ sudo ./install.sh
+```
+
+If you see an error message, the kernel install failed. If everything goes
+well, you will see this message: **Kernel install complete!**. You will
+need to reboot for the changes to take effect.
+
+```
+$ sudo reboot
+```
+
+If you have any problems with the process, please file an issue on GitHub:
+https://github.com/adafruit/Adafruit-Pi-Kernel-o-Matic/issues

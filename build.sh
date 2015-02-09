@@ -29,9 +29,10 @@ fi
 
 GIT_DIR="/rpi_linux"
 MOD_DIR=`mktemp -d`
-PKG_DIR=`mktemp -d`
+PKG_TMP=`mktemp -d`
 TOOLS_DIR="/opt/rpi_tools"
 FIRMWARE_DIR="/opt/rpi_firmware"
+DEBIAN_DIR="/opt/rpi_debian"
 NUM_CPUS=`nproc`
 GIT_REPO="https://github.com/raspberrypi/linux"
 GIT_BRANCH=""
@@ -101,6 +102,11 @@ if [ ! -d $FIRMWARE_DIR ]; then
   git clone --depth 1 https://github.com/raspberrypi/firmware $FIRMWARE_DIR
 fi
 
+if [ ! -d $DEBIAN_DIR ]; then
+  echo "**** CLONING DEBIAN BUILD REPO ****"
+  git clone --depth 1 https://github.com/asb/firmware $DEBIAN_DIR
+fi
+
 # make sure tools dir is up to date
 cd $TOOLS_DIR
 git pull
@@ -109,16 +115,18 @@ git pull
 cd $FIRMWARE_DIR
 git pull
 
+# make sure debian package dir is up to date
+cd $DEBIAN_DIR
+git pull
+
 # pull together the debian package folder
-cp -r /kernel_builder/package/* $PKG_DIR
-mkdir $PKG_DIR/boot
-BOOT_FILES="bootcode.bin fixup.dat fixup_cd.dat fixup_x.dat kernel.img kernel7.img start.elf start_cd.elf start_x.elf"
-for FN in $BOOT_FILES; do
-  cp $FIRMWARE_DIR/boot/$FN $PKG_DIR/boot
-done
+CURRENT_DATE=`date +%Y%m%d`
+NEW_VERSION="1.${CURRENT_DATE}"
+PKG_DIR="${PKG_TMP}/raspberrypi-firmware_${NEW_VERSION}"
+mkdir $PKG_DIR
+cp -r $FIRMWARE_DIR/* $PKG_DIR
 mv $PKG_DIR/boot/kernel.img $PKG_DIR/boot/kernel_emergency.img
 mv $PKG_DIR/boot/kernel7.img $PKG_DIR/boot/kernel7_emergency.img
-mkdir ${PKG_DIR}/lib
 
 # if we don't have a git dir, clone the repo
 if [ ! -d $GIT_DIR ]; then
@@ -144,9 +152,9 @@ echo "**** COMPILING v1 KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
 ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
-cp -r ${MOD_DIR}/lib/* ${PKG_DIR}/lib
+cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
-CCPREFIX="${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-"
+CCPREFIX=${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-
 
 # RasPi v2 build
 rm .config
@@ -160,16 +168,28 @@ echo "**** COMPILING v2 KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
 ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
-cp -r ${MOD_DIR}/lib/* ${PKG_DIR}/lib
+cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
-# confirm package version
-OLD_VERSION=`date +%Y%m%d`
-read -e -p "Confirm the new version: " -i "1.${OLD_VERSION}-1" NEW_VERSION
-sed -i $PKG_DIR/DEBIAN/control -e "s/^Version.*/Version: ${NEW_VERSION}/"
+cd $PKG_TMP
+tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz raspberrypi-firmware_${NEW_VERSION}
 
-echo "**** BUILDING DEB PACKAGE ****"
-fakeroot dpkg-deb -b $PKG_DIR /vagrant/raspberrypi-bootloader-custom_${NEW_VERSION}.deb
+# copy debian files to package directory
+cp -r $DEBIAN_DIR/debian $PKG_DIR
+cp -r /vagrant/debian/* $PKG_DIR/debian
+touch $PKG_DIR/debian/files
 
-echo -e "\n**** DONE: /vagrant/raspberrypi-bootloader-custom_${NEW_VERSION}.deb ****\n"
+cd $PKG_DIR
+dch -v ${NEW_VERSION}-1 --package raspberrypi-firmware 'Adds Adafruit Kernel-o-Matic custom kernel'
+chown -R vagrant $PKG_TMP
+su vagrant -c "debuild --no-lintian -ePATH=${PATH}:${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin -b -aarmhf -us -uc"
 
-echo -e "THE raspberrypi-bootloader-custom_${NEW_VERSION}.deb PACKAGE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
+cd $PKG_TMP
+mkdir custom_kernel_${NEW_VERSION}-1
+cp *.deb custom_kernel_${NEW_VERSION}-1
+cp /vagrant/install.sh custom_kernel_${NEW_VERSION}-1
+cp /vagrant/docs/INSTALL custom_kernel_${NEW_VERSION}-1
+chmod +x custom_kernel_${NEW_VERSION}-1/install.sh
+tar czf custom_kernel_${NEW_VERSION}-1.tar.gz custom_kernel_${NEW_VERSION}-1
+mv custom_kernel_${NEW_VERSION}-1.tar.gz /vagrant
+
+echo -e "THE custom_kernel_${NEW_VERSION}-1.tar.gz ARCHIVE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
