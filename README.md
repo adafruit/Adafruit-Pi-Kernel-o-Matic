@@ -52,8 +52,9 @@ Compile [adafruit-raspberrypi-linux][2] using the `rpi-3.15.y` branch:
 ~$ sudo adabuild -r https://github.com/adafruit/adafruit-raspberrypi-linux -b rpi-3.15.y
 ```
 
-A `.deb` package will be available in the Kernel-o-Matic folder on the host machine
-after the custom kernel has been built.
+A `tar.gz` archive will be available in the Kernel-o-Matic folder on the host machine
+after the custom kernel has been built. Copy the archive to your Pi and extact the
+contents. Installation instructions are included in the archive.
 
 [1]: https://learn.adafruit.com/raspberry-pi-kernel-o-matic
 [2]: https://github.com/adafruit/adafruit-raspberrypi-linux
