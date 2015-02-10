@@ -149,8 +149,8 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
 echo "**** SAVING A COPY OF YOUR v1 CONFIG TO /vagrant/v1_saved_config ****"
 cp .config /vagrant/v1_saved_config
 echo "**** COMPILING v1 KERNEL ****"
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
-ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k V=1
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} V=1 modules_install
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
@@ -165,8 +165,8 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
 echo "**** SAVING A COPY OF YOUR v2 CONFIG TO /vagrant/v2_saved_config ****"
 cp .config /vagrant/v2_saved_config
 echo "**** COMPILING v2 KERNEL ****"
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
-ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k V=1
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} V=1 modules_install
 cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
 cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
