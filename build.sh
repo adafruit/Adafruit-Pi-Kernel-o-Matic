@@ -27,18 +27,22 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-GIT_DIR="/rpi_linux"
+REPO_ROOT="/kernel_repos/"
 MOD_DIR=`mktemp -d`
 PKG_TMP=`mktemp -d`
 TOOLS_DIR="/opt/rpi_tools"
 FIRMWARE_DIR="/opt/rpi_firmware"
 DEBIAN_DIR="/opt/rpi_debian"
 NUM_CPUS=`nproc`
-GIT_REPO="https://github.com/raspberrypi/linux"
+GIT_REPO="raspberrypi/linux"
+V1_DIR="${REPO_ROOT}${GIT_REPO}/v1"
+V2_DIR="${REPO_ROOT}${GIT_REPO}/v2"
 GIT_BRANCH=""
 
-V1_COMPILE_CONFIG="arch/arm/configs/bcmrpi_defconfig"
-V2_COMPILE_CONFIG="arch/arm/configs/bcm2709_defconfig"
+V1_DEFAULT_CONFIG="arch/arm/configs/bcmrpi_defconfig"
+V2_DEFAULT_CONFIG="arch/arm/configs/bcm2709_defconfig"
+V1_CONFIG=""
+v2_CONFIG=""
 
 function usage() {
   cat << EOF
@@ -46,23 +50,24 @@ usage: adabuild [options]
  This will build the Raspberry Pi Kernel.
  OPTIONS:
     -h        Show this message
-    -r        The remote git repo to clone
+    -r        The remote github repo to clone in user/repo format
               Default: $GIT_REPO
     -b        The git branch to use
               Default: Default git branch of repo
     -1        The config file to use when compiling for Raspi v1
-              Default: $V1_COMPILE_CONFIG
+              Default: $V1_DEFAULT_CONFIG
     -2        The config file to use when compiling for Raspi v2
-              Default: $V2_COMPILE_CONFIG
+              Default: $V2_DEFAULT_CONFIG
 
 EOF
 }
 
 function clone() {
-  echo "**** CLONING GIT REPO ****"
+  echo "**** CLONING to ${REPO_ROOT}${GIT_REPO} ****"
   echo "REPO: ${GIT_REPO}"
   echo "BRANCH: ${GIT_BRANCH}"
-  git clone --depth 1 --recursive $GIT_BRANCH ${GIT_REPO} $GIT_DIR
+  git clone --depth 1 --recursive https://github.com/${GIT_REPO} $V1_DIR
+  cp -r $V1_DIR $V2_DIR
 }
 
 while getopts "hb:r:1:2:" opt; do
@@ -70,13 +75,13 @@ while getopts "hb:r:1:2:" opt; do
   h)  usage
       exit 0
       ;;
-  b)  GIT_BRANCH="--branch $OPTARG"
+  b)  GIT_BRANCH="$OPTARG"
       ;;
   r)  GIT_REPO="$OPTARG"
       ;;
-  1)  V1_COMPILE_CONFIG="$OPTARG"
+  1)  V1_CONFIG="$OPTARG"
       ;;
-  2)  V2_COMPILE_CONFIG="$OPTARG"
+  2)  V2_CONFIG="$OPTARG"
       ;;
   \?) usage
       exit 1
@@ -86,9 +91,26 @@ done
 
 echo -e "\n**** USING ${NUM_CPUS} AVAILABLE CORES ****\n"
 
-if [ "$GIT_REPO" != "https://github.com/raspberrypi/linux" ]; then
-  # use temp dir if we aren't using the default linux repo
-  GIT_DIR=`mktemp -d`
+if [ ! -d $REPO_ROOT ]; then
+  mkdir $REPO_ROOT
+fi
+
+if [ "$GIT_REPO" != "raspberrypi/linux" ]; then
+
+  if [[ "$GIT_REPO" =~ "http" ]]; then
+      echo "please provide a valid githubuser/repo path"
+      usage
+      exit 1
+  fi
+
+  V1_DIR="${REPO_ROOT}${GIT_REPO}/v1"
+  V2_DIR="${REPO_ROOT}${GIT_REPO}/v2"
+
+fi
+
+if [ ! -d $V1_DIR ]; then
+  mkdir -p $V1_DIR
+  mkdir -p $V2_DIR
   clone
 fi
 
@@ -128,46 +150,48 @@ cp -r $FIRMWARE_DIR/* $PKG_DIR
 mv $PKG_DIR/boot/kernel.img $PKG_DIR/boot/kernel_emergency.img
 mv $PKG_DIR/boot/kernel7.img $PKG_DIR/boot/kernel7_emergency.img
 
-# if we don't have a git dir, clone the repo
-if [ ! -d $GIT_DIR ]; then
-  clone
-fi
-
-# make sure we are up to date
-cd $GIT_DIR
-git pull
-git submodule update --init
-
-CCPREFIX=${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-
-
 # RasPi v1 build
-rm .config
-make ARCH=arm clean
-echo "**** CONFIGURING Pi v1 kernel USING ${V1_COMPILE_CONFIG} ****"
-cp ${V1_COMPILE_CONFIG} .config
+cd $V1_DIR
+git pull
+git checkout ${GIT_BRANCH}
+git submodule update --init
+CCPREFIX=${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-
+if [ ! -f .config ]; then
+  if [ "$V1_CONFIG" == "" ]; then
+    cp ${V1_DEFAULT_CONFIG} .config
+  else
+    cp ${V1_CONFIG} .config
+  fi
+fi
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
 echo "**** SAVING A COPY OF YOUR v1 CONFIG TO /vagrant/v1_saved_config ****"
 cp .config /vagrant/v1_saved_config
 echo "**** COMPILING v1 KERNEL ****"
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k V=1
-ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} V=1 modules_install
-cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel.img
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
+cp arch/arm/boot/Image $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
-CCPREFIX=${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-
-
 # RasPi v2 build
-rm .config
-make ARCH=arm clean
-echo "**** CONFIGURING Pi v2 kernel USING ${V2_COMPILE_CONFIG} ****"
-cp ${V2_COMPILE_CONFIG} .config
+cd $V2_DIR
+git pull
+git checkout ${GIT_BRANCH}
+git submodule update --init
+CCPREFIX=${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-
+if [ ! -f .config ]; then
+  if [ "$V2_CONFIG" == "" ]; then
+    cp ${V2_DEFAULT_CONFIG} .config
+  else
+    cp ${V2_CONFIG} .config
+  fi
+fi
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make menuconfig
 echo "**** SAVING A COPY OF YOUR v2 CONFIG TO /vagrant/v2_saved_config ****"
 cp .config /vagrant/v2_saved_config
 echo "**** COMPILING v2 KERNEL ****"
-ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k V=1
-ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} V=1 modules_install
-cp ${GIT_DIR}/arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
+ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
+ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
+cp arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
 cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
 
 cd $PKG_TMP
