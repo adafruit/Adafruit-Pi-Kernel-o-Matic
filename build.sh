@@ -110,7 +110,6 @@ fi
 
 if [ ! -d $V1_DIR ]; then
   mkdir -p $V1_DIR
-  mkdir -p $V2_DIR
   clone
 fi
 
