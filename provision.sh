@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 apt-get update
-apt-get install -y git unzip build-essential libncurses5-dev debhelper quilt devscripts
+apt-get install -y git unzip build-essential libncurses5-dev debhelper quilt devscripts emacs vim
 
 if [ -L /usr/sbin/adabuild ]; then
   rm /usr/sbin/adabuild

@@ -212,6 +212,6 @@ cp /vagrant/install.sh custom_kernel_${NEW_VERSION}-1
 cp /vagrant/docs/INSTALL custom_kernel_${NEW_VERSION}-1
 chmod +x custom_kernel_${NEW_VERSION}-1/install.sh
 tar czf custom_kernel_${NEW_VERSION}-1.tar.gz custom_kernel_${NEW_VERSION}-1
-mv custom_kernel_${NEW_VERSION}-1.tar.gz /vagrant
+mv -f custom_kernel_${NEW_VERSION}-1.tar.gz /vagrant
 
 echo -e "THE custom_kernel_${NEW_VERSION}-1.tar.gz ARCHIVE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
