@@ -146,8 +146,8 @@ NEW_VERSION="1.${CURRENT_DATE}"
 PKG_DIR="${PKG_TMP}/raspberrypi-firmware_${NEW_VERSION}"
 mkdir $PKG_DIR
 cp -r $FIRMWARE_DIR/* $PKG_DIR
-mv $PKG_DIR/boot/kernel.img $PKG_DIR/boot/kernel_emergency.img
-mv $PKG_DIR/boot/kernel7.img $PKG_DIR/boot/kernel7_emergency.img
+# mv $PKG_DIR/boot/kernel.img $PKG_DIR/boot/kernel_emergency.img
+# mv $PKG_DIR/boot/kernel7.img $PKG_DIR/boot/kernel7_emergency.img
 
 # RasPi v1 build
 cd $V1_DIR
@@ -169,7 +169,8 @@ echo "**** COMPILING v1 KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
 ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 cp arch/arm/boot/Image $PKG_DIR/boot/kernel.img
-cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
+cat ${MOD_DIR}
+cp -r ${MOD_DIR}/lib/* ${PKG_DIR}
 
 # RasPi v2 build
 cd $V2_DIR
@@ -191,7 +192,7 @@ echo "**** COMPILING v2 KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k
 ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
 cp arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
-cp -r ${MOD_DIR}/lib/modules/* ${PKG_DIR}/modules
+cp -r ${MOD_DIR}/lib/* ${PKG_DIR}
 
 cd $PKG_TMP
 tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz raspberrypi-firmware_${NEW_VERSION}
