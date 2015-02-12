@@ -198,7 +198,6 @@ tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz raspberrypi-firmware_${N
 
 # copy debian files to package directory
 cp -r $DEBIAN_DIR/debian $PKG_DIR
-cp -r /vagrant/debian/* $PKG_DIR/debian
 touch $PKG_DIR/debian/files
 
 cd $PKG_DIR
