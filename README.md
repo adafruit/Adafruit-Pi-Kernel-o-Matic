@@ -11,8 +11,8 @@ VirtualBox, a brief overview of the build process can be found below.
 Clone the git repo & start the vagrant box:
 
 ```
-$ git clone https://github.com/adafruit/Adafruit-Pi-Kernel-o-Matic.git pi_kernel
-$ cd pi_kernel
+$ git clone https://github.com/adafruit/Adafruit-Pi-Kernel-o-Matic.git Kernel-o-Matic
+$ cd Kernel-o-Matic
 $ vagrant up
 ```
 
@@ -30,8 +30,8 @@ usage: adabuild [options]
  This will build the Raspberry Pi Kernel.
  OPTIONS:
     -h        Show this message
-    -r        The remote git repo to clone
-              Default: https://github.com/raspberrypi/linux
+    -r        The remote github kernel repo to clone in user/repo format
+              Default: raspberrypi/linux
     -b        The git branch to use
               Default: Default git branch of repo
     -1        The config file to use when compiling for Raspi v1
