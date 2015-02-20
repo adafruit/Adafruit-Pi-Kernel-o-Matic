@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+add-apt-repository -y ppa:git-core
 apt-get update
 apt-get install -y git unzip build-essential libncurses5-dev debhelper quilt devscripts emacs vim
 
