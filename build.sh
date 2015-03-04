@@ -34,13 +34,13 @@ TOOLS_DIR="/opt/rpi_tools"
 FIRMWARE_DIR="/opt/rpi_firmware"
 DEBIAN_DIR="/opt/rpi_debian"
 NUM_CPUS=`nproc`
-GIT_REPO="raspberrypi/linux"
+GIT_REPO="adafruit/adafruit-raspberrypi-linux"
 V1_DIR="${REPO_ROOT}${GIT_REPO}/v1"
 V2_DIR="${REPO_ROOT}${GIT_REPO}/v2"
-GIT_BRANCH=""
+GIT_BRANCH="DEV-rpi-3.18.y"
 
-V1_DEFAULT_CONFIG="arch/arm/configs/bcmrpi_defconfig"
-V2_DEFAULT_CONFIG="arch/arm/configs/bcm2709_defconfig"
+V1_DEFAULT_CONFIG="arch/arm/configs/ada_pi1_defconfig"
+V2_DEFAULT_CONFIG="arch/arm/configs/ada_pi2_defconfig"
 V1_CONFIG=""
 v2_CONFIG=""
 
@@ -146,8 +146,6 @@ NEW_VERSION="1.${CURRENT_DATE}"
 PKG_DIR="${PKG_TMP}/raspberrypi-firmware_${NEW_VERSION}"
 mkdir $PKG_DIR
 cp -r $FIRMWARE_DIR/* $PKG_DIR
-# mv $PKG_DIR/boot/kernel.img $PKG_DIR/boot/kernel_emergency.img
-# mv $PKG_DIR/boot/kernel7.img $PKG_DIR/boot/kernel7_emergency.img
 
 # RasPi v1 build
 cd $V1_DIR
@@ -201,17 +199,22 @@ cp -r $DEBIAN_DIR/debian $PKG_DIR
 touch $PKG_DIR/debian/files
 
 cd $PKG_DIR
-dch -v ${NEW_VERSION}-1 --package raspberrypi-firmware 'Adds Adafruit Kernel-o-Matic custom kernel'
+dch -v ${NEW_VERSION}-1 --package raspberrypi-firmware 'Adds Adafruit Kernel-o-Matic pitft kernel'
 chown -R vagrant $PKG_TMP
 su vagrant -c "debuild --no-lintian -ePATH=${PATH}:${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin -b -aarmhf -us -uc"
 
 cd $PKG_TMP
-mkdir custom_kernel_${NEW_VERSION}-1
-cp *.deb custom_kernel_${NEW_VERSION}-1
-cp /vagrant/install.sh custom_kernel_${NEW_VERSION}-1
-cp /vagrant/docs/INSTALL custom_kernel_${NEW_VERSION}-1
-chmod +x custom_kernel_${NEW_VERSION}-1/install.sh
-tar czf custom_kernel_${NEW_VERSION}-1.tar.gz custom_kernel_${NEW_VERSION}-1
-mv -f custom_kernel_${NEW_VERSION}-1.tar.gz /vagrant
+mkdir adafruit_pitft_kernel_${NEW_VERSION}-1
+cp *.deb adafruit_pitft_kernel_${NEW_VERSION}-1
+cp /vagrant/install.sh adafruit_pitft_kernel_${NEW_VERSION}-1
+cp /vagrant/*.dts adafruit_pitft_kernel_${NEW_VERSION}-1
+cp /vagrant/docs/INSTALL adafruit_pitft_kernel_${NEW_VERSION}-1
+cd adafruit_pitft_kernel_${NEW_VERSION}-1
+chmod +x install.sh
+wget -c https://raw.githubusercontent.com/RobertCNelson/tools/master/pkgs/dtc.sh
+chmod +x dtc.sh
+cd ..
+tar czf adafruit_pitft_kernel_${NEW_VERSION}-1.tar.gz adafruit_pitft_kernel_${NEW_VERSION}-1
+mv -f adafruit_pitft_kernel_${NEW_VERSION}-1.tar.gz /vagrant
 
-echo -e "THE custom_kernel_${NEW_VERSION}-1.tar.gz ARCHIVE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"
+echo -e "THE adafruit_pitft_kernel_${NEW_VERSION}-1.tar.gz ARCHIVE SHOULD NOW BE\nAVAILABLE IN THE KERNEL-O-MATIC FOLDER ON YOUR HOST MACHINE\n\n"

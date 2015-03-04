@@ -2,12 +2,12 @@
 
 Copy the custom kernel tar.gz archive to your Raspberry Pi, and use
 the `tar` command to extract the archive. In the example, the archive
-we will be using is called `custom_kernel_1.20150207-1.tar.gz`. Replace
-the name of the example archive with the name of your custom kernel
+we will be using is called `adafruit_pitft_kernel_1.20150207-1.tar.gz`. Replace
+the name of the example archive with the name of the pitft kernel
 tar.gz archive.
 
 ```
-$ tar xf custom_kernel_1.20150207-1.tar.gz
+$ tar xf adafruit_pitft_kernel_1.20150207-1.tar.gz
 ```
 
 You can now `cd` into the extracted folder. The extracted
@@ -15,7 +15,7 @@ folder will have the same name as the archive, minus the
 .tar.gz suffix.
 
 ```
-$ cd custom_kernel_1.20150207-1
+$ cd adafruit_pitft_kernel_1.20150207-1
 ```
 
 Now you are ready to run the install script. **Warning!** *Installing
