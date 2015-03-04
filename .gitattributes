@@ -10,6 +10,7 @@ README.md text
 *.sh text eol=lf
 docs/INSTALL text eol=lf
 debian/raspberrypi* text eol=lf
+*.dts text eol=lf
 
 # Denote all files that are truly binary and should not be modified.
 docs/*.psd binary
