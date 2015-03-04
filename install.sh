@@ -49,19 +49,6 @@ exitonerr dpkg -i libraspberrypi-*
 echo "**** Kernel install complete! ****"
 echo
 
-./dtc.sh -@ -I dts -O dtb -o /boot/overlays/pitft28r-overlay.dtb pitft28r-overlay.dts
-
-if ! grep -Fq "pitft28r" /boot/config.txt; then
-cat << "EOF" >> /boot/config.txt
-device_tree=bcm2709-rpi-2-b.dtb
-dtparam=spi=on
-dtparam=i2c1=on
-dtparam=i2c_arm=on
-dtoverlay=pitft28r
-dtdebug=1
-EOF
-fi
-
 read -p "Reboot to apply changes? (y/n): " -n 1 -r
 echo
 
