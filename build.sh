@@ -66,7 +66,7 @@ function clone() {
   echo "**** CLONING to ${REPO_ROOT}${GIT_REPO} ****"
   echo "REPO: ${GIT_REPO}"
   echo "BRANCH: ${GIT_BRANCH}"
-  git clone --depth 1 --recursive https://github.com/${GIT_REPO} $V1_DIR
+  git clone --recursive https://github.com/${GIT_REPO} $V1_DIR
   cp -r $V1_DIR $V2_DIR
 }
 
@@ -149,8 +149,9 @@ cp -r $FIRMWARE_DIR/* $PKG_DIR
 
 # RasPi v1 build
 cd $V1_DIR
-git pull
+git fetch
 git checkout ${GIT_BRANCH}
+git pull
 git submodule update --init
 CCPREFIX=${TOOLS_DIR}/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin/arm-bcm2708-linux-gnueabi-
 if [ ! -f .config ]; then
@@ -171,8 +172,9 @@ cp -r ${MOD_DIR}/lib/* ${PKG_DIR}
 
 # RasPi v2 build
 cd $V2_DIR
-git pull
+git fetch
 git checkout ${GIT_BRANCH}
+git pull
 git submodule update --init
 CCPREFIX=${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-
 if [ ! -f .config ]; then
