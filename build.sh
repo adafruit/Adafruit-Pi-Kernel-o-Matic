@@ -37,7 +37,7 @@ NUM_CPUS=`nproc`
 GIT_REPO="adafruit/adafruit-raspberrypi-linux"
 V1_DIR="${REPO_ROOT}${GIT_REPO}/v1"
 V2_DIR="${REPO_ROOT}${GIT_REPO}/v2"
-GIT_BRANCH="LADYADA-rpi-3.18.y"
+GIT_BRANCH="TAR-rpi-3.18.y"
 
 V1_DEFAULT_CONFIG="arch/arm/configs/ada_pi1_defconfig"
 V2_DEFAULT_CONFIG="arch/arm/configs/ada_pi2_defconfig"
