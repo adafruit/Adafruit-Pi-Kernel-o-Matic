@@ -17,3 +17,4 @@ docs/*.psd binary
 docs/*.aep binary
 docs/*.gif binary
 docs/*.png binary
+boot/overlays/*.dtb binary

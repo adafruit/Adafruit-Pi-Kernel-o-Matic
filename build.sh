@@ -37,7 +37,7 @@ NUM_CPUS=`nproc`
 GIT_REPO="adafruit/adafruit-raspberrypi-linux"
 V1_DIR="${REPO_ROOT}${GIT_REPO}/v1"
 V2_DIR="${REPO_ROOT}${GIT_REPO}/v2"
-GIT_BRANCH="TAR-rpi-3.18.y"
+GIT_BRANCH=""
 
 V1_DEFAULT_CONFIG="arch/arm/configs/ada_pi1_defconfig"
 V2_DEFAULT_CONFIG="arch/arm/configs/ada_pi2_defconfig"
@@ -193,12 +193,18 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS
 ${TOOLS_DIR}/mkimage/mkknlimg arch/arm/boot/Image $PKG_DIR/boot/kernel7.img
 cp -r ${MOD_DIR}/lib/* ${PKG_DIR}
 
+# copy overlays
+cp -r /vagrant/boot/* $PKG_DIR/boot
+
+# tar up firmware
 cd $PKG_TMP
 tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz raspberrypi-firmware_${NEW_VERSION}
 
 # copy debian files to package directory
 cp -r $DEBIAN_DIR/debian $PKG_DIR
 touch $PKG_DIR/debian/files
+cd $PKG_DIR/debian
+source gen_bootloader_postinst_preinst.sh
 
 cd $PKG_DIR
 dch -v ${NEW_VERSION}-1 --package raspberrypi-firmware 'Adds Adafruit Kernel-o-Matic pitft kernel'
@@ -211,11 +217,7 @@ cp *.deb adafruit_pitft_kernel_${NEW_VERSION}-1
 cp /vagrant/install.sh adafruit_pitft_kernel_${NEW_VERSION}-1
 cp /vagrant/*.dts adafruit_pitft_kernel_${NEW_VERSION}-1
 cp /vagrant/docs/INSTALL adafruit_pitft_kernel_${NEW_VERSION}-1
-cd adafruit_pitft_kernel_${NEW_VERSION}-1
-chmod +x install.sh
-wget -c https://raw.githubusercontent.com/RobertCNelson/tools/master/pkgs/dtc.sh
-chmod +x dtc.sh
-cd ..
+chmod +x adafruit_pitft_kernel_${NEW_VERSION}-1/install.sh
 tar czf adafruit_pitft_kernel_${NEW_VERSION}-1.tar.gz adafruit_pitft_kernel_${NEW_VERSION}-1
 mv -f adafruit_pitft_kernel_${NEW_VERSION}-1.tar.gz /vagrant
 
