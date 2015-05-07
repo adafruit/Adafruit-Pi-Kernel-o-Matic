@@ -66,7 +66,7 @@ function clone() {
   echo "**** CLONING to ${REPO_ROOT}${GIT_REPO} ****"
   echo "REPO: ${GIT_REPO}"
   echo "BRANCH: ${GIT_BRANCH}"
-  git clone --depth 1 --recursive https://github.com/${GIT_REPO} $V1_DIR
+  git clone --recursive https://github.com/${GIT_REPO} $V1_DIR
   cp -r $V1_DIR $V2_DIR
 }
 
