@@ -6,6 +6,9 @@ A detailed guide for using the Kernel-o-Matic can be found on
 [The Adafruit Learning System][1]. If you are familiar with Vagrant and
 VirtualBox, a brief overview of the build process can be found below.
 
+If you are looking to compile a custom kernel with the PiTFT device tree overlays included,
+you can do that by using the [pitft branch][3] of this repo.
+
 ## Compiling The Raspberry Pi Kernel
 
 Clone the git repo & start the vagrant box:
@@ -58,3 +61,4 @@ contents. Installation instructions are included in the archive.
 
 [1]: https://learn.adafruit.com/raspberry-pi-kernel-o-matic
 [2]: https://github.com/adafruit/adafruit-raspberrypi-linux
+[3]: https://github.com/adafruit/Adafruit-Pi-Kernel-o-Matic/tree/pitft
