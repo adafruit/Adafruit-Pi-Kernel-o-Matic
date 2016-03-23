@@ -31,7 +31,7 @@ fi
 
 ln -s /vagrant/build.sh /usr/sbin/adabuild
 
-if ! grep -Fq "Adafruit" /home/vagrant/.bashrc; then
-  echo 'export EMAIL="support@adafruit.com"' >> /home/vagrant/.bashrc
-  echo 'export DEBFULLNAME="Adafruit"' >> /home/vagrant/.bashrc
+if ! grep -Fq "Adafruit" ~/.bashrc; then
+  echo 'export EMAIL="support@adafruit.com"' >> ~/.bashrc
+  echo 'export DEBFULLNAME="Adafruit"' >> ~/.bashrc
 fi
