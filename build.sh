@@ -168,7 +168,7 @@ cp .config /vagrant/v1_saved_config
 echo "**** COMPILING v1 KERNEL ****"
 ARCH=arm CROSS_COMPILE=${CCPREFIX} make -j${NUM_CPUS} -k zImage modules dtbs
 ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS} modules_install
-${TOOLS_DIR}/mkimage/mkknlimg arch/arm/boot/zImage $PKG_DIR/boot/kernel.img
+scripts/mkknlimg arch/arm/boot/zImage $PKG_DIR/boot/kernel.img
 cp -r ${MOD_DIR}/lib/* ${PKG_DIR}
 
 # RasPi v2 build
@@ -193,7 +193,7 @@ ARCH=arm CROSS_COMPILE=${CCPREFIX} INSTALL_MOD_PATH=${MOD_DIR} make -j${NUM_CPUS
 cp arch/arm/boot/dts/*.dtb $PKG_DIR/boot/
 cp arch/arm/boot/dts/overlays/*.dtb* $PKG_DIR/boot/overlays/
 cp arch/arm/boot/dts/overlays/README $PKG_DIR/boot/overlays/
-${TOOLS_DIR}/mkimage/mkknlimg arch/arm/boot/zImage $PKG_DIR/boot/kernel7.img
+scripts/mkknlimg arch/arm/boot/zImage $PKG_DIR/boot/kernel7.img
 cp -r ${MOD_DIR}/lib/* ${PKG_DIR}
 
 cd $PKG_TMP
