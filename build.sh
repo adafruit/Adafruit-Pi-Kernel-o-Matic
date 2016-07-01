@@ -151,6 +151,10 @@ cp -r $FIRMWARE_DIR/* $PKG_DIR
 
 # RasPi v1 build
 cd $V1_DIR
+SUBDIRS=`find $V1_DIR -maxdepth 1 -type d | wc -l` #make sure the clone succeeded
+if [ $SUBDIRS -eq 2 ]; then
+    clone
+fi
 git pull
 git checkout ${GIT_BRANCH}
 git submodule update --init
