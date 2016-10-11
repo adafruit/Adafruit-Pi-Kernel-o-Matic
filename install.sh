@@ -43,9 +43,8 @@ function exitonerr {
 }
 
 echo "**** Installing custom kernel ****"
-exitonerr dpkg -i raspberrypi-bootloader*
-exitonerr dpkg -i libraspberrypi0*
-exitonerr dpkg -i libraspberrypi-*
+exitonerr dpkg -i raspberrypi*
+exitonerr dpkg -i libraspberrypi*
 echo "**** Kernel install complete! ****"
 echo
 

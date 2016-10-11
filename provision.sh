@@ -29,7 +29,7 @@ if [ -L /usr/sbin/adabuild ]; then
   rm /usr/sbin/adabuild
 fi
 
-ln -s /vagrant/build.sh /usr/sbin/adabuild
+cp /vagrant/build.sh /usr/sbin/adabuild
 
 if ! grep -Fq "Adafruit" ~/.bashrc; then
   echo 'export EMAIL="support@adafruit.com"' >> ~/.bashrc
