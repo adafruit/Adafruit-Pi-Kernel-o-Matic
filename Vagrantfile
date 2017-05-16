@@ -25,8 +25,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       cpus = `nproc`.to_i
       mem = `grep 'MemTotal' /proc/meminfo | sed -e 's/MemTotal://' -e 's/ kB//'`.to_i / 1024 / 4
     else # Windows
-      cpus = `for /F "tokens=2 delims==" %i in ('wmic cpu get NumberOfCores /value') do @echo %i`.to_i
-      mem = `for /F "tokens=2 delims==" %i in ('wmic computersystem get TotalPhysicalMemory /value') do @echo %i`.to_i / 1024 / 1024 / 4
+      cpus = `for /F "tokens=2 delims==" %i in ('C:/windows/system32/wbem/wmic cpu get NumberOfCores /value') do @echo %i`.to_i
+      mem = `for /F "tokens=2 delims==" %i in ('C:/windows/system32/wbem/wmic computersystem get TotalPhysicalMemory /value') do @echo %i`.to_i / 1024 / 1024 / 4
     end
 
     v.customize ["modifyvm", :id, "--memory", mem]
