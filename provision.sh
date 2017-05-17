@@ -2,7 +2,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2015 Adafruit
+# Copyright (c) 2015-2017 Adafruit
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,15 +21,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+
 add-apt-repository -y ppa:git-core
 apt-get update
-apt-get install -y git unzip build-essential libncurses5-dev debhelper quilt devscripts emacs vim
+apt-get install -y git unzip build-essential libncurses5-dev debhelper quilt devscripts emacs vim qemu-user-static zip kpartx
 
 if [ -L /usr/sbin/adabuild ]; then
   rm /usr/sbin/adabuild
 fi
 
 cp /vagrant/build.sh /usr/sbin/adabuild
+cp /vagrant/chroot.sh /usr/sbin/adachroot
+cp /vagrant/image.sh /usr/sbin/adaimage
 
 if ! grep -Fq "Adafruit" ~/.bashrc; then
   echo 'export EMAIL="support@adafruit.com"' >> ~/.bashrc
