@@ -113,6 +113,14 @@ On your host machine (mac os, windows, etc), check the Kernel-o-Matic folder for
 
 ## Building Images
 
+You may need to reprovision your vagrant box to install the latest dependencies. Run the following commands from the Kernel-o-Matic repo on your host machine:
+
+```sh
+$ vagrant halt
+$ vagrant up --provision
+$ vagrant ssh
+```
+
 You will need to download the latest version of Jessie Lite in the vagrant instance:
 
 ```sh
