@@ -206,7 +206,7 @@ tar czf raspberrypi-firmware_${NEW_VERSION}.orig.tar.gz raspberrypi-firmware_${N
 cp -r $DEBIAN_DIR/debian $PKG_DIR
 touch $PKG_DIR/debian/files
 cd $PKG_DIR/debian
-source gen_bootloader_postinst_preinst.sh
+sh gen_bootloader_postinst_preinst.sh
 
 cd $PKG_DIR
 dch -v ${NEW_VERSION}-1 --package raspberrypi-firmware 'Adds Adafruit Kernel-o-Matic pitft kernel'
