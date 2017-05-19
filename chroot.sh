@@ -3,8 +3,7 @@
 # The MIT License (MIT)
 #
 # Copyright (c) 2015-2017 Adafruit
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
+# # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -16,12 +15,10 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-
 function print_help() {
     echo "Usage: $0 -t [pitfttype] -i target.img -a kernel.tar.gz"
     echo "    -h            Print this help"
@@ -90,6 +87,17 @@ echo "copying ${target_image}..."
 cp $target_image "${date}-pitft-${pitfttype}${postfix}.img"
 target_image="${date}-pitft-${pitfttype}${postfix}.img"
 
+echo "resizing ${target_image}..."
+dd if=/dev/zero bs=1M count=500 >> $target_image
+P_START=$( fdisk -lu $target_image | grep Linux | awk '{print $2}' ) # Start of 2nd partition in 512 byte sectors
+P_SIZE=$(( $( fdisk -lu $target_image | grep Linux | awk '{print $3}' ) * 1024 )) # Partition size in bytes
+losetup /dev/loop2 $target_image -o $(($P_START * 512))
+fsck -f /dev/loop2
+resize2fs /dev/loop2
+fsck -f /dev/loop2
+losetup -d /dev/loop2
+echo -e "p\nd\n2\nn\np\n2\n$P_START\n\np\nW\n" | fdisk $target_image
+
 # assemble a mostly-legit filesystem by mounting / and /boot from the target
 # iso, plus /dev from the host pi (/dev/(u)random seems to be required by
 # recent versions of GPG):
@@ -108,6 +116,7 @@ echo "" > $target_mnt/etc/ld.so.preload
 
 chroot $target_mnt mkdir -p /tmp/pitft_kernel
 chroot $target_mnt tar xf /tmp/$archive_name -C /tmp/pitft_kernel --strip-components=1
+chroot $target_mnt rm /tmp/$archive_name
 
 echo "Adding apt.adafruit.com to sources.list"
 curl -SLs https://apt.adafruit.com/add | chroot $target_mnt /bin/bash
@@ -117,7 +126,9 @@ echo -e "Package: *\nPin: origin \"apt.adafruit.com\"\nPin-Priority: 1001" | chr
 
 echo "Installing kernel and adafruit-pitft-helper"
 chroot $target_mnt /bin/bash -c 'sudo dpkg -i /tmp/pitft_kernel/raspberrypi*'
+chroot $target_mnt /bin/bash -c 'sudo rm -rf /tmp/pitft_kernel/raspberrypi*'
 chroot $target_mnt /bin/bash -c 'sudo dpkg -i /tmp/pitft_kernel/libraspberrypi*'
+chroot $target_mnt /bin/bash -c 'sudo rm -rf /tmp/pitft_kernel/libraspberrypi*'
 chroot $target_mnt sudo apt-get install -y adafruit-pitft-helper
 
 echo "Running adafruit-pitft-helper"
@@ -131,6 +142,20 @@ umount $target_mnt/boot
 umount $target_mnt/dev
 umount $target_mnt
 kpartx -d $target_image
+
+echo "shrinking image..."
+P_START=$( fdisk -lu $target_image | grep Linux | awk '{print $2}' ) # Start of 2nd partition in 512 byte sectors
+P_SIZE=$(( $( fdisk -lu $target_image | grep Linux | awk '{print $3}' ) * 1024 )) # Partition size in bytes
+losetup /dev/loop2 $target_image -o $(($P_START * 512))
+fsck -f /dev/loop2
+resize2fs -M /dev/loop2 # Make the filesystem as small as possible
+fsck -f /dev/loop2
+P_NEWSIZE=$( dumpe2fs /dev/loop2 2>/dev/null | grep '^Block count:' | awk '{print $3}' ) # In 4k blocks
+P_NEWEND=$(( $P_START + ($P_NEWSIZE * 8) + 1 )) # in 512 byte sectors
+losetup -d /dev/loop2
+echo -e "p\nd\n2\nn\np\n2\n$P_START\n$P_NEWEND\np\nW\n" | fdisk $target_image
+I_SIZE=$((($P_NEWEND + 1) * 512)) # New image size in bytes
+truncate -s $I_SIZE $target_image
 
 zipname=$(basename $target_image .img)
 echo "compressing $target_image"
